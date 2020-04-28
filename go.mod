@@ -1,4 +1,4 @@
-module git.amfamlabs.com/terraform-provider-artifactory
+module git.amfamlabs.com/jchiocch/terraform-provider-artifactory
 
 go 1.14
 
