@@ -16,6 +16,14 @@ func resourceArtifact() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"repo": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"path": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"checksums": {
 				Type:     schema.TypeString,
 				Optional: true,
