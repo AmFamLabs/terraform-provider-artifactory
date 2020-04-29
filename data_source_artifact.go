@@ -98,11 +98,13 @@ func dataSourceArtifactRead(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		// TODO: better logic if 404-not found, but we need to delete this with setId
 		d.SetId("")
+		// we don't need to continue
+		return nil
 	}
-	defer resp.Body.Close()
 	var f FileInfo
 	jsonerr := json.NewDecoder(resp.Body).Decode(&f)
 	if jsonerr != nil {
