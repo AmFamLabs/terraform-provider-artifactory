@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"net/http"
 )
 
 func resourceArtifact() *schema.Resource {
