@@ -14,12 +14,15 @@ object for deployment.
    [`aws_lambda_function`](https://www.terraform.io/docs/providers/aws/r/lambda_function.html)
    resource defined with `s3_bucket` and `s3_key` from the source resource. 
    - Changes to the source `artifactory_artifact_s3_deployment` resource
-     will hash if Artifactory deployment isn't already doing this for us. (I
-     think it is)
+     will effect the `s3_key` through a hash if Artifactory deployment isn't
+     already doing this for us. (I think it is), but a `s3_bucket` 
+     should be required and we should expect to use a vanilla
+     `aws_s3_bucket` data/resource attribute.
    - the "deployment" resource should signify the object is placed into s3 and will
      have the appropriate CRUD operations expected of a `resource` in terraform
      - broken down, the resource name follows terraform's pattern of jumping
-       between domains with `s3_deployment` as a 'destination'.
+       between domains with `s3_deployment` as a 'destination'. `deployment` to
+       signify this is put as one of potential other actions on `s3`
  - [X] a `data` that is a `artiactory_artifact` which will utilize Artifactory's
    REST API for grabbing information of a given `repository_path`
 
