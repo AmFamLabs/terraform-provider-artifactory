@@ -25,3 +25,10 @@ traced/tracked.
 ```sh
 go build
 ```
+
+### Run plugin
+
+```sh
+terraform init
+terraform plan && terraform apply
+```
