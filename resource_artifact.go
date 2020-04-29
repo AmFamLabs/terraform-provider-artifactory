@@ -34,14 +34,17 @@ func resourceArtifact() *schema.Resource {
 }
 
 func resourceArtifactCreate(d *schema.ResourceData, m interface{}) error {
+	repository_path := d.Get("repository_path").(string)
+	d.SetId(repository_path)
 	return resourceArtifactRead(d, m)
 }
 
-//func resourceArtifactRead(d *schema.ResourceData, m interface{}) error {
-//	return nil
-//}
+func resourceArtifactRead(d *schema.ResourceData, m interface{}) error {
+	return dataSourceArtifactRead(d, m)
+}
 
 func resourceArtifactUpdate(d *schema.ResourceData, m interface{}) error {
+
 	return resourceArtifactRead(d, m)
 }
 

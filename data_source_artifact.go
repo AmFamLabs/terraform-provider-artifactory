@@ -1,30 +1,28 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"io/ioutil"
-	//	"log"
 	"net/http"
 )
 
-//type FileInfo struct {
-//	uri         string
-//	downloadUri string
-//	repo        string
-//	path        string
-//	size        string
-//	checksums   struct {
-//		md5    string
-//		sha1   string
-//		sha256 string
-//	}
-//	originalChecksums struct {
-//		md5    string
-//		sha1   string
-//		sha256 string
-//	}
-//}
+type Checksums struct {
+	Md5    string `json:"md5"`
+	Sha1   string `json:"sha1"`
+	Sha256 string `json:"sha256"`
+}
+
+type FileInfo struct {
+	Checksums         Checksums `json:"checksums"`
+	DownloadUri       string    `json:"downloadUri"`
+	OriginalChecksums Checksums `json:"originalChecksums"`
+	Path              string    `json:"path"`
+	Repo              string    `json:"repo"`
+	Size              string    `json:"size"`
+	Uri               string    `json:"uri"`
+}
 
 func dataSourceArtifact() *schema.Resource {
 	return &schema.Resource{
@@ -35,64 +33,86 @@ func dataSourceArtifact() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"repo": {
+			//
+			//"body": {
+			//	//
+			//	Type:     schema.TypeString,
+			//	Computed: true,
+			//},
+			"checksums": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"download_uri": {
 				Type:     schema.TypeString,
+				Computed: true,
+			},
+			"original_checksums": {
+				Type:     schema.TypeMap,
 				Computed: true,
 			},
 			"path": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"checksums": {
+			"repo": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
+			},
+			"size": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
 	}
 }
 
-func dataSourceArtifactRead(d *schema.ResourceData, m interface{}) error {
-	return resourceArtifactRead(d, m)
+func checksumsToMap(c Checksums) map[string]string {
+	return map[string]string{
+		"md5":    c.Md5,
+		"sha1":   c.Sha1,
+		"sha256": c.Sha256,
+	}
 }
 
-func resourceArtifactRead(d *schema.ResourceData, m interface{}) error {
-	resp, err := http.Get("https://artifacts.amfamlabs.com/api/storage/lambda/propinc/ingest/replicate-2.30.0.zip")
+func grabBody(uri string) error {
+	artifact_binary_resp, err := http.Get(uri)
 	if err != nil {
-		//log.Fatal(err)
-		//
 		return err
+	}
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(artifact_binary_resp.Body)
+	if err != nil {
+		return err
+	}
+	defer artifact_binary_resp.Body.Close()
+	return nil
+}
+
+func dataSourceArtifactRead(d *schema.ResourceData, m interface{}) error {
+	repository_path := d.Get("repository_path").(string)
+	d.SetId(repository_path)
+	api_url := fmt.Sprintf("https://artifacts.amfamlabs.com/api/storage/%s", repository_path)
+	resp, err := http.Get(api_url)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 {
+		// TODO: better logic if 404-not found, but we need to delete this with setId
+		d.SetId("")
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		//log.Fatal(err)
-		return err
-	}
-	//var f FileInfo
-	//err := json.NewDecoder(resp.Body).Decode(&f)
-	var v map[string]interface{}
-	//jsonerr := json.NewDecoder(resp.Body).Decode(&v)
-	jsonerr := json.Unmarshal(body, &v)
+	var f FileInfo
+	jsonerr := json.NewDecoder(resp.Body).Decode(&f)
 	if jsonerr != nil {
-		//log.Fatal(jsonerr)
 		return jsonerr
 	}
-	for k, vv := range v {
-		switch k {
-		case "repo":
-			d.Set("repo", vv.(string))
-		case "path":
-			d.Set("path", vv.(string))
-			//default:
-			//	return
-			//
-		default:
-		}
-	}
-	//d.Set("repo", "hit_this_at_least")
-	//d.Set("repo", f.repo)
-	//d.Set("path", f.path)
+	d.Set("checksums", checksumsToMap(f.Checksums))
+	d.Set("download_uri", f.DownloadUri)
+	d.Set("original_checksums", checksumsToMap(f.OriginalChecksums))
+	d.Set("path", f.Path)
+	d.Set("repo", f.Repo)
+	d.Set("size", f.Size)
 	return nil
-
 }

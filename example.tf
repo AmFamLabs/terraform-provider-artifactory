@@ -4,8 +4,10 @@ provider "artifactory" {
 
 // we only need READs for MVP, methinks
 data "artifactory_artifact" "test_artifact" {
-  repository_path = "lambda/propinc/ingest/fake.zip"
+  repository_path = "lambda/propinc/ingest/replicate-2.30.0.zip"
 }
+
+
 
 
 // this is the terraform use case
@@ -16,17 +18,33 @@ data "artifactory_artifact" "test_artifact" {
 
 
 locals {
-  repo = data.artifactory_artifact.test_artifact.repo
+  repo      = data.artifactory_artifact.test_artifact.repo
+  path      = data.artifactory_artifact.test_artifact.path
+  checksums = data.artifactory_artifact.test_artifact.checksums
 }
 
-
+// this is the input
 output "repository_path" {
   value = data.artifactory_artifact.test_artifact.repository_path
 }
-output "repo" {
-  value = data.artifactory_artifact.test_artifact.repo
+
+// these will be computed
+output "checksums" {
+  value = data.artifactory_artifact.test_artifact.checksums
+}
+
+output "download_uri" {
+  value = data.artifactory_artifact.test_artifact.download_uri
 }
 
 output "path" {
   value = data.artifactory_artifact.test_artifact.path
+}
+
+output "repo" {
+  value = data.artifactory_artifact.test_artifact.repo
+}
+
+output "size" {
+  value = data.artifactory_artifact.test_artifact.size
 }
