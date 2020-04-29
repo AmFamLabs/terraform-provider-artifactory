@@ -34,8 +34,10 @@ func dataSourceArtifact() *schema.Resource {
 				Required: true,
 			},
 			//
+			// everything else is computed
+			//
 			//"body": {
-			//	//
+			//	// this would only make sense for small text files
 			//	Type:     schema.TypeString,
 			//	Computed: true,
 			//},
