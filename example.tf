@@ -7,16 +7,26 @@ data "artifactory_artifact" "test_artifact" {
   repository_path = "lambda/propinc/ingest/fake.zip"
 }
 
-resource "null_resource" "use_data" {
-  triggers = {
-    repository_path = data.artifactory_artifact.test_artifact.repository_path
-    repo = data.artifactory_artifact.test_artifact.repo
-    path = data.artifactory_artifact.test_artifact.path
-  }
-}
 
 // this is the terraform use case
 //resource "artifactory_artifact" "test_artifact" {
 //  repository_path = "lambda/propinc/ingest/fake.zip"
-//  body = ""
+//  //body = ""
 //}
+
+
+locals {
+  repo = data.artifactory_artifact.test_artifact.repo
+}
+
+
+output "repository_path" {
+  value = data.artifactory_artifact.test_artifact.repository_path
+}
+output "repo" {
+  value = data.artifactory_artifact.test_artifact.repo
+}
+
+output "path" {
+  value = data.artifactory_artifact.test_artifact.path
+}

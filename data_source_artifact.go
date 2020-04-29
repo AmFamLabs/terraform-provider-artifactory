@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"io/ioutil"
-	"log"
+	//	"log"
 	"net/http"
 )
 
@@ -59,13 +59,15 @@ func dataSourceArtifactRead(d *schema.ResourceData, m interface{}) error {
 func resourceArtifactRead(d *schema.ResourceData, m interface{}) error {
 	resp, err := http.Get("https://artifacts.amfamlabs.com/api/storage/lambda/propinc/ingest/replicate-2.30.0.zip")
 	if err != nil {
-		log.Fatal(err)
+		//log.Fatal(err)
 		//
+		return err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		//log.Fatal(err)
+		return err
 	}
 	//var f FileInfo
 	//err := json.NewDecoder(resp.Body).Decode(&f)
@@ -73,20 +75,22 @@ func resourceArtifactRead(d *schema.ResourceData, m interface{}) error {
 	//jsonerr := json.NewDecoder(resp.Body).Decode(&v)
 	jsonerr := json.Unmarshal(body, &v)
 	if jsonerr != nil {
-		log.Fatal(jsonerr)
+		//log.Fatal(jsonerr)
+		return jsonerr
 	}
 	for k, vv := range v {
 		switch k {
 		case "repo":
-			d.Set("repo", vv)
+			d.Set("repo", vv.(string))
 		case "path":
-			d.Set("path", vv)
+			d.Set("path", vv.(string))
 			//default:
 			//	return
 			//
 		default:
 		}
 	}
+	//d.Set("repo", "hit_this_at_least")
 	//d.Set("repo", f.repo)
 	//d.Set("path", f.path)
 	return nil
