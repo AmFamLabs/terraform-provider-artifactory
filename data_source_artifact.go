@@ -76,20 +76,6 @@ func checksumsToMap(c Checksums) map[string]string {
 	}
 }
 
-func grabBody(uri string) error {
-	artifact_binary_resp, err := http.Get(uri)
-	if err != nil {
-		return err
-	}
-	buf := new(bytes.Buffer)
-	_, err = buf.ReadFrom(artifact_binary_resp.Body)
-	if err != nil {
-		return err
-	}
-	defer artifact_binary_resp.Body.Close()
-	return nil
-}
-
 func dataSourceArtifactRead(d *schema.ResourceData, m interface{}) error {
 	repository_path := d.Get("repository_path").(string)
 	d.SetId(repository_path)

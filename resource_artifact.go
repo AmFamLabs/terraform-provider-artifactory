@@ -51,3 +51,18 @@ func resourceArtifactUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceArtifactDelete(d *schema.ResourceData, m interface{}) error {
 	return nil
 }
+
+// TODO: useful as starting point for writing to s3
+func bufBody(uri string) error {
+	artifact_binary_resp, err := http.Get(uri)
+	if err != nil {
+		return err
+	}
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(artifact_binary_resp.Body)
+	if err != nil {
+		return err
+	}
+	defer artifact_binary_resp.Body.Close()
+	return nil
+}
