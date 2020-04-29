@@ -1,6 +1,7 @@
 # terraform-provider-artifactory
 
-This provider's goal is given *some* input, an artifact from JFrog's
+## Abstract
+This provider's is given *some* input, an artifact from JFrog's
 Artifactory will create a S3 object deployment that's state can be
 traced/tracked for influencing a vanilla lambda deployment that wants an s3
 object for deployment.
