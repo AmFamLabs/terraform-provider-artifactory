@@ -37,6 +37,26 @@ _theres probably a way to generate this_
 data "artifactory_artifact" "test_artifact" {
   repository_path = "lambda/propinc/ingest/replicate-2.30.0.zip"
 }
+
+output "checksums" {
+  value = data.artifactory_artifact.test_artifact.checksums
+}
+
+output "download_uri" {
+  value = data.artifactory_artifact.test_artifact.download_uri
+}
+
+output "path" {
+  value = data.artifactory_artifact.test_artifact.path
+}
+
+output "repo" {
+  value = data.artifactory_artifact.test_artifact.repo
+}
+
+output "size" {
+  value = data.artifactory_artifact.test_artifact.size
+}
 ```
 
 
