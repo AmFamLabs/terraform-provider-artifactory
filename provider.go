@@ -13,9 +13,9 @@ func Provider() *schema.Provider {
 				Required:    true,
 			},
 		},
-		ResourcesMap: map[string]*schema.Resource{
-			"artifactory_artifact": resourceArtifact(),
-		},
+		//ResourcesMap: map[string]*schema.Resource{
+		//	"artifactory_artifact": resourceArtifact(),
+		//},
 		DataSourcesMap: map[string]*schema.Resource{
 			"artifactory_artifact": dataSourceArtifact(),
 		},
