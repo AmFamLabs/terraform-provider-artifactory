@@ -37,9 +37,9 @@ func resourceArtifactCreate(d *schema.ResourceData, m interface{}) error {
 	return resourceArtifactRead(d, m)
 }
 
-func resourceArtifactRead(d *schema.ResourceData, m interface{}) error {
-	return nil
-}
+//func resourceArtifactRead(d *schema.ResourceData, m interface{}) error {
+//	return nil
+//}
 
 func resourceArtifactUpdate(d *schema.ResourceData, m interface{}) error {
 	return resourceArtifactRead(d, m)
