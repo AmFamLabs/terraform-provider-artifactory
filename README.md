@@ -28,6 +28,18 @@ object for deployment.
    REST API for grabbing information of a given `repository_path`
 
 
+# Terraform Resources
+
+_theres probably a way to generate this_
+
+## `data.artifactory_artifact`
+```terraform
+data "artifactory_artifact" "test_artifact" {
+  repository_path = "lambda/propinc/ingest/replicate-2.30.0.zip"
+}
+```
+
+
 
 ## Development
 
