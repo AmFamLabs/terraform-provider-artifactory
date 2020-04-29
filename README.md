@@ -28,6 +28,15 @@ object for deployment.
    REST API for grabbing information of a given `repository_path`
 
 
+### Caveat for Terraform Enterprise
+
+Via [terraform custom providers][tfe_custom_providers]
+
+Custom providers (plugins) have to either have their binary added to the repo
+in the same path of any terraform that would require it, or it must be packaged
+and bundled using the [`terraform_bundle`][terraform_bundle] tool.
+
+
 # Terraform Resources
 
 _theres probably a way to generate this_
@@ -79,3 +88,7 @@ go build
 terraform init
 terraform plan && terraform apply
 ```
+
+
+[terraform_bundle]: https://github.com/hashicorp/terraform/tree/master/tools/terraform-bundle#installing-a-bundle-in-on-premises-terraform-enterprise
+[tfe_custom_providers]: https://www.terraform.io/docs/cloud/run/install-software.html#custom-and-community-providers
