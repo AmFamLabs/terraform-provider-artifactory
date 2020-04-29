@@ -9,13 +9,17 @@ object for deployment.
 
 - *MVP?* a `resource` and `data`
  - [ ] a `resource` that is a `artifactory_artifact_s3_deployment` which will produce a
-   resource that will have an attributes of `s3_bucket` and `s3_key` that can be
+   resource that will have the attributes of `s3_bucket` and `s3_key` that can be
    used to feed a vanilla
-   [`aws_lambda_function`](https://www.terraform.io/docs/providers/aws/r/lambda_function.html) defining a resource with
-   `s3_bucket` and `s3_key`. 
+   [`aws_lambda_function`](https://www.terraform.io/docs/providers/aws/r/lambda_function.html)
+   resource defined with `s3_bucket` and `s3_key` from the source resource. 
    - Changes to the source `artifactory_artifact_s3_deployment` resource
      will hash if Artifactory deployment isn't already doing this for us. (I
      think it is)
+   - the "deployment" resource should signify the object is placed into s3 and will
+     have the appropriate CRUD operations expected of a `resource` in terraform
+     - broken down, the resource name follows terraform's pattern of jumping
+       between domains with `s3_deployment` as a 'destination'.
  - [X] a `data` that is a `artiactory_artifact` which will utilize Artifactory's
    REST API for grabbing information of a given `repository_path`
 
