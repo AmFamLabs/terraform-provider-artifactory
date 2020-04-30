@@ -19,6 +19,11 @@ object for deployment.
      already doing this for us. (I think it is), but a `s3_bucket` 
      should be required and we should expect to use a vanilla
      `aws_s3_bucket` data/resource attribute.
+   - `source_code_hash` on the `aws_lambda_function` can also use the one
+     provided conveniently by artifactory. i.e.;
+     
+     ```terraform
+     ```
    - the "deployment" resource should signify the object is placed into s3 and will
      have the appropriate CRUD operations expected of a `resource` in terraform
      - broken down, the resource name follows terraform's pattern of jumping
