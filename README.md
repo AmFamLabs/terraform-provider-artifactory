@@ -23,6 +23,10 @@ object for deployment.
      provided conveniently by artifactory. i.e.;
      
      ```terraform
+     resource "aws_lambda_function" "fun" {
+        source_code_hash = base64(data.artifactory_artifact.test_artifact.checksums.sha256)
+        s3_bucket = ...
+     }
      ```
    - the "deployment" resource should signify the object is placed into s3 and will
      have the appropriate CRUD operations expected of a `resource` in terraform
