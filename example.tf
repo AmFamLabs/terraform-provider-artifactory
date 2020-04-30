@@ -11,10 +11,10 @@ data "artifactory_artifact" "test_artifact" {
 
 
 // this is the terraform use case
-//resource "artifactory_artifact" "test_artifact" {
-//  repository_path = "lambda/propinc/ingest/fake.zip"
-//  //body = ""
-//}
+resource "artifactory_artifact_s3_deployment" "test_artifact" {
+  repository_path = "lambda/propinc/ingest/fake.zip"
+  //body = ""
+}
 
 
 locals {
