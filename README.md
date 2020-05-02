@@ -58,6 +58,11 @@ s3_key, the underlying zip on s3 that more than one function may use will be
 deleted. We assume artifactory will have uniqueness on each "repository_path",
 the artifact itself, or the basename will be the basename on s3 with
 `s3_prefix` like `s3://$S3_PREFIX/$ARTIFACT_BASENAME`.
+
+To put another way - if your function will require a specific version, it will
+need to be exposed by Artifactory's path provided as `repository_path` to the
+resource.
+
 ```terraform
 resource "artifactory_artifact_s3_deployment" "test_artifact" {
   repository_path = "lambda/propinc/ingest/replicate-2.30.0.zip"
