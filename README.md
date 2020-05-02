@@ -50,6 +50,25 @@ and bundled using the [`terraform_bundle`][terraform_bundle] tool.
 
 _theres probably a way to generate this_
 
+
+## `artifactory_artifact` (resource)
+
+One "deployment" should be made per function, since it is fully managed by the
+s3_key, the underlying zip on s3 that more than one function may use will be
+deleted. We assume artifactory will have uniqueness on each "repository_path",
+the artifact itself, or the basename will be the basename on s3 with
+`s3_prefix` like `s3://$S3_PREFIX/$ARTIFACT_BASENAME`.
+```terraform
+resource "artifactory_artifact_s3_deployment" "test_artifact" {
+  repository_path = "lambda/propinc/ingest/replicate-2.30.0.zip"
+  s3_bucket = "yolk-propinc-live-tmp-bucket"
+  s3_prefix = "lambda/deployments"
+}
+
+
+... aws_lambda_function goes here ...
+```
+
 ## `data.artifactory_artifact`
 ```terraform
 data "artifactory_artifact" "test_artifact" {
