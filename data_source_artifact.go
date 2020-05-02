@@ -1,10 +1,7 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"net/http"
 )
 
 type Checksums struct {
@@ -35,11 +32,6 @@ func dataSourceArtifact() *schema.Resource {
 			//
 			// everything else is computed
 			//
-			//"body": {
-			//	// this would only make sense for small text files
-			//	Type:     schema.TypeString,
-			//	Computed: true,
-			//},
 			"checksums": {
 				Type:     schema.TypeMap,
 				Computed: true,
@@ -52,6 +44,7 @@ func dataSourceArtifact() *schema.Resource {
 			"original_checksums": {
 				Type:     schema.TypeMap,
 				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			"path": {
 				Type:     schema.TypeString,
@@ -80,22 +73,15 @@ func checksumsToMap(c Checksums) map[string]string {
 func dataSourceArtifactRead(d *schema.ResourceData, m interface{}) error {
 	repository_path := d.Get("repository_path").(string)
 	d.SetId(repository_path)
-	api_url := fmt.Sprintf("https://artifacts.amfamlabs.com/api/storage/%s", repository_path)
-	resp, err := http.Get(api_url)
+	var f FileInfo
+	err := getFileInfo(repository_path, &f)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		// TODO: better logic if 404-not found, but we need to delete this with setId
+	if f.Path == "" {
 		d.SetId("")
-		// we don't need to continue
+		// we dont continue
 		return nil
-	}
-	var f FileInfo
-	jsonerr := json.NewDecoder(resp.Body).Decode(&f)
-	if jsonerr != nil {
-		return jsonerr
 	}
 	d.Set("checksums", checksumsToMap(f.Checksums))
 	d.Set("download_uri", f.DownloadUri)

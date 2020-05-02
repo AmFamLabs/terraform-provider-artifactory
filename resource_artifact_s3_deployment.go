@@ -1,18 +1,14 @@
 package main
 
 import (
-	"bytes"
-
-	"github.com/aws/aws-sdk-go/aws"
-	//"github.com/aws/aws-sdk-go/aws/awserr"
-	//"github.com/aws/aws-sdk-go/service/kms"
-	"github.com/aws/aws-sdk-go/service/s3"
-	//"github.com/aws/aws-sdk-go/aws"
-	//"github.com/aws/aws-sdk-go/aws/session"
-	//"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"net/http"
+	"path/filepath"
 )
 
 func resourceArtifactS3Deployment() *schema.Resource {
@@ -30,12 +26,17 @@ func resourceArtifactS3Deployment() *schema.Resource {
 			"s3_bucket": {
 				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
 			},
 			"s3_key": {
 				Type:     schema.TypeString,
 				Computed: true,
+				ForceNew: true,
 			},
-			// these can be available
+			"s3_prefix": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
 			"repo": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -45,8 +46,17 @@ func resourceArtifactS3Deployment() *schema.Resource {
 				Computed: true,
 			},
 			"checksums": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"original_checksums": {
+				Type:     schema.TypeMap,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+			"download_uri": {
 				Type:     schema.TypeString,
-				Optional: true,
 				Computed: true,
 			},
 		},
@@ -54,26 +64,48 @@ func resourceArtifactS3Deployment() *schema.Resource {
 }
 
 func resourceArtifactS3DeploymentCreate(d *schema.ResourceData, m interface{}) error {
-	svc := m.(*s3.S3)
-	result, err := svc.ListBuckets(nil)
+	resourceArtifactS3DeploymentRead(d, m)
+	sess := m.(*session.Session)
+	uploader := s3manager.NewUploader(sess)
+	artifact_binary_resp, err := http.Get(d.Get("download_uri").(string))
 	if err != nil {
 		return err
 	}
-	fmt.Println("Buckets:")
-
-	for _, b := range result.Buckets {
-		fmt.Printf("* %s created on %s\n",
-			aws.StringValue(b.Name), aws.TimeValue(b.CreationDate))
+	defer artifact_binary_resp.Body.Close()
+	_, err = uploader.Upload(&s3manager.UploadInput{
+		Bucket: aws.String(d.Get("s3_bucket").(string)),
+		Key:    aws.String(d.Get("s3_key").(string)),
+		Body:   artifact_binary_resp.Body,
+	})
+	if err != nil {
+		return err
 	}
-
-	repository_path := d.Get("repository_path").(string)
-	d.SetId(repository_path)
-
-	return resourceArtifactS3DeploymentRead(d, m)
+	return nil
 }
 
 func resourceArtifactS3DeploymentRead(d *schema.ResourceData, m interface{}) error {
-	return dataSourceArtifactRead(d, m)
+	repository_path := d.Get("repository_path").(string)
+	s3_bucket := d.Get("s3_bucket").(string)
+	s3_prefix := d.Get("s3_prefix").(string)
+
+	var f FileInfo
+	err := getFileInfo(repository_path, &f)
+	if err != nil {
+		return err
+	}
+
+	filename := filepath.Base(f.Path)
+	s3_key := fmt.Sprintf("%s/%s", s3_prefix, filename)
+	d.SetId(fmt.Sprintf("%s__s3://%s/%s", repository_path, s3_bucket, s3_key))
+	d.Set("s3_key", s3_key)
+	d.Set("checksums", checksumsToMap(f.Checksums))
+	d.Set("download_uri", f.DownloadUri)
+	d.Set("original_checksums", checksumsToMap(f.OriginalChecksums))
+	d.Set("path", f.Path)
+	d.Set("repo", f.Repo)
+	d.Set("size", f.Size)
+
+	return nil
 }
 
 func resourceArtifactS3DeploymentUpdate(d *schema.ResourceData, m interface{}) error {
@@ -81,20 +113,18 @@ func resourceArtifactS3DeploymentUpdate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceArtifactS3DeploymentDelete(d *schema.ResourceData, m interface{}) error {
-	return nil
-}
+	sess := m.(*session.Session)
+	svc := s3.New(sess)
+	s3_bucket := d.Get("s3_bucket").(string)
+	s3_key := d.Get("s3_key").(string)
 
-// TODO: useful as starting point for writing to s3
-func bufBody(uri string) error {
-	artifact_binary_resp, err := http.Get(uri)
+	input := &s3.DeleteObjectInput{
+		Bucket: aws.String(s3_bucket),
+		Key:    aws.String(s3_key),
+	}
+	_, err := svc.DeleteObject(input)
 	if err != nil {
 		return err
 	}
-	buf := new(bytes.Buffer)
-	_, err = buf.ReadFrom(artifact_binary_resp.Body)
-	if err != nil {
-		return err
-	}
-	defer artifact_binary_resp.Body.Close()
 	return nil
 }

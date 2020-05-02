@@ -9,8 +9,8 @@ object for deployment.
 ## Feature Wishlist
 
 - *MVP?* a `resource` and `data`
- - [ ] a `resource` that is a `artifactory_artifact_s3_deployment` which will produce a
-   resource that will have the attributes of `s3_bucket` and `s3_key` that can be
+ - [X] a `resource` that is a `artifactory_artifact_s3_deployment` which will produce a
+   resource that will have the attributes of `s3_bucket` and `s3_prefix` that can be
    used to feed a vanilla
    [`aws_lambda_function`](https://www.terraform.io/docs/providers/aws/r/lambda_function.html)
    resource defined with `s3_bucket` and `s3_key` from the source resource. 
@@ -24,7 +24,7 @@ object for deployment.
      
      ```terraform
      resource "aws_lambda_function" "fun" {
-        source_code_hash = base64(data.artifactory_artifact.test_artifact.checksums.sha256)
+        source_code_hash = base64encode(data.artifactory_artifact.test_artifact.checksums.sha256)
         s3_bucket = ...
      }
      ```
