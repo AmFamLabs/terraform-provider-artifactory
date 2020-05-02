@@ -70,10 +70,8 @@ func Provider() *schema.Provider {
 				new_sess, err := session.NewSessionWithOptions(session.Options{
 					Config: aws.Config{Credentials: creds},
 				})
-				if err != nil {
-					return nil, err
-				}
-				return new_sess, nil
+				return new_ess, err
+
 				// alternative...?
 				//assumeRoleInput := &sts.AssumeRoleInput{
 				//	//DurationSeconds:   aws.Int64(int64((p.Duration - jitter) / time.Second)),
