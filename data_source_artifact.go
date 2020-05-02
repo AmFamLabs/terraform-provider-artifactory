@@ -4,22 +4,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-type Checksums struct {
-	Md5    string `json:"md5"`
-	Sha1   string `json:"sha1"`
-	Sha256 string `json:"sha256"`
-}
-
-type FileInfo struct {
-	Checksums         Checksums `json:"checksums"`
-	DownloadUri       string    `json:"downloadUri"`
-	OriginalChecksums Checksums `json:"originalChecksums"`
-	Path              string    `json:"path"`
-	Repo              string    `json:"repo"`
-	Size              string    `json:"size"`
-	Uri               string    `json:"uri"`
-}
-
 func dataSourceArtifact() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceArtifactRead,
@@ -59,14 +43,6 @@ func dataSourceArtifact() *schema.Resource {
 				Computed: true,
 			},
 		},
-	}
-}
-
-func checksumsToMap(c Checksums) map[string]string {
-	return map[string]string{
-		"md5":    c.Md5,
-		"sha1":   c.Sha1,
-		"sha256": c.Sha256,
 	}
 }
 
