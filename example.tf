@@ -35,7 +35,7 @@ locals {
   repo      = data.artifactory_artifact.test_artifact.repo
   path      = data.artifactory_artifact.test_artifact.path
   checksums = data.artifactory_artifact.test_artifact.checksums
-  s3_prefix = "lambda/deployments-deux/"
+  s3_prefix = "lambda/deployments-deux"
   artifact_name = "replicate-2.30.0.zip"
 }
 
