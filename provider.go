@@ -70,7 +70,7 @@ func Provider() *schema.Provider {
 				new_sess, err := session.NewSessionWithOptions(session.Options{
 					Config: aws.Config{Credentials: creds},
 				})
-				return new_ess, err
+				return new_sess, err
 
 				// alternative...?
 				//assumeRoleInput := &sts.AssumeRoleInput{

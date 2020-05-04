@@ -20,22 +20,27 @@ func resourceArtifactS3Deployment() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"repository_path": {
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Description: "The source artifactory repository_path.",
+				Required:    true,
 			},
 			"s3_bucket": {
-				Type:     schema.TypeString,
-				Required: true,
-				ForceNew: true,
+				Type:        schema.TypeString,
+				Description: "The target s3 bucket name.",
+				Required:    true,
+				ForceNew:    true,
+			},
+			"s3_prefix": {
+				Type:        schema.TypeString,
+				Description: "The target s3 prefix for the target s3 bucket.",
+				Optional:    true,
+				Default:     "",
+				ForceNew:    true,
 			},
 			"s3_key": {
 				Type:     schema.TypeString,
 				Computed: true,
 				ForceNew: true,
-			},
-			"s3_prefix": {
-				Type:     schema.TypeString,
-				Optional: true,
 			},
 			"repo": {
 				Type:     schema.TypeString,
@@ -64,7 +69,10 @@ func resourceArtifactS3Deployment() *schema.Resource {
 }
 
 func resourceArtifactS3DeploymentCreate(d *schema.ResourceData, m interface{}) error {
-	resourceArtifactS3DeploymentRead(d, m)
+	err := resourceArtifactS3DeploymentRead(d, m)
+	if err != nil {
+		return err
+	}
 	sess := m.(*session.Session)
 	uploader := s3manager.NewUploader(sess)
 	artifact_binary_resp, err := http.Get(d.Get("download_uri").(string))
@@ -84,6 +92,7 @@ func resourceArtifactS3DeploymentCreate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceArtifactS3DeploymentRead(d *schema.ResourceData, m interface{}) error {
+	// TODO add s3 read
 	repository_path := d.Get("repository_path").(string)
 	s3_bucket := d.Get("s3_bucket").(string)
 	s3_prefix := d.Get("s3_prefix").(string)
@@ -109,6 +118,7 @@ func resourceArtifactS3DeploymentRead(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceArtifactS3DeploymentUpdate(d *schema.ResourceData, m interface{}) error {
+	// TODO recreate when keys change
 	return resourceArtifactS3DeploymentRead(d, m)
 }
 
