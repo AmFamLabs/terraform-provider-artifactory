@@ -134,13 +134,6 @@ func resourceArtifactS3DeploymentCreate(d *schema.ResourceData, m interface{}) e
 	return nil
 }
 
-func setS3Key(d *schema.ResourceData, path string, prefix string) error {
-	filename := filepath.Base(path)
-	s3_key := filepath.Join(prefix, filename)
-	d.Set("s3_key", s3_key)
-	return nil
-}
-
 func resourceArtifactS3DeploymentRead(d *schema.ResourceData, m interface{}) error {
 	// TODO add s3 read
 	repository_path := d.Get("repository_path").(string)
@@ -148,6 +141,8 @@ func resourceArtifactS3DeploymentRead(d *schema.ResourceData, m interface{}) err
 	s3_prefix := d.Get("s3_prefix").(string)
 
 	var f FileInfo
+	// TODO use the provided artifactoryUrl, or require datasource input and
+	// configurefunc for returning either an http client or s3 client
 	err := getFileInfo(repository_path, &f)
 	if err != nil {
 		return err

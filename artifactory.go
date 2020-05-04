@@ -23,8 +23,9 @@ type FileInfo struct {
 }
 
 func getFileInfo(repository_path string, f *FileInfo) error {
-
-	resp, err := http.Get(fmt.Sprintf("https://artifacts.amfamlabs.com/api/storage/%s", repository_path))
+	// TODO use from provider config
+	artifactory_url := "https://artifacts.amfamlabs.com"
+	resp, err := http.Get(fmt.Sprintf("%s/api/storage/%s", artifactory_url, repository_path))
 	if err != nil {
 		return err
 	}
