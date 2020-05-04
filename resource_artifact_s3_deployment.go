@@ -135,7 +135,6 @@ func resourceArtifactS3DeploymentCreate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceArtifactS3DeploymentRead(d *schema.ResourceData, m interface{}) error {
-	// TODO add s3 read
 	repository_path := d.Get("repository_path").(string)
 	s3_bucket := d.Get("s3_bucket").(string)
 	s3_prefix := d.Get("s3_prefix").(string)
@@ -162,7 +161,8 @@ func resourceArtifactS3DeploymentRead(d *schema.ResourceData, m interface{}) err
 }
 
 func resourceArtifactS3DeploymentUpdate(d *schema.ResourceData, m interface{}) error {
-	// TODO recreate when keys change over "ForceRecreate" option in Schema
+	// recreate when keys change over "ForceRecreate" option in Schema would
+	// require changes here
 	return resourceArtifactS3DeploymentRead(d, m)
 }
 
