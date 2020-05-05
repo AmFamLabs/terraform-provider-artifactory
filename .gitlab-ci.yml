@@ -47,7 +47,7 @@ publish:
       - master
   script:
     - >-
-      VAULT_VERSION="1.4.1";
+      VAULT_VERSION="1.4.1"
       cd $GOPATH/bin
       && apt-get update 
       && apt-get install unzip
