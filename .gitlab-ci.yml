@@ -46,14 +46,14 @@ publish:
     refs:
       - master
   script:
-    - VAULT_VERSION=1.4.1
     - >-
+      VAULT_VERSION="1.4.1"
       cd $GOPATH/bin
       && apt-get update 
       && apt-get install unzip
-      && curl -LO https://releases.hashicorp.com/vault/$VAULT_VERSION/vault_$VAULT_VERSION_linux_amd64.zip
-      && unzip vault_$VAULT_VERSION_linux_amd64.zip
-      && rm vault_$VAULT_VERSION_linux_amd64.zip
+      && curl -LO "https://releases.hashicorp.com/vault/$VAULT_VERSION/vault_$VAULT_VERSION_linux_amd64.zip"
+      && unzip "vault_$VAULT_VERSION_linux_amd64.zip"
+      && rm "vault_$VAULT_VERSION_linux_amd64.zip"
       && cd -
     - VAULT_HOST="$(echo $VAULT_ADDR | sed 's|https://||g')"
     - vault login -no-print -method aws role="$VAULT_ROLE" header_value="$VAULT_HOST"
