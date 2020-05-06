@@ -1,5 +1,6 @@
 provider "artifactory" {
   url = "https://artifacts.amfamlabs.com"
+  s3_region = "us-east-1"
   //will work :)
   //assume_role {
   //  //role_arn     = "arn:aws:iam::${data.consul_keys.config.var["${var.workspace}_id"]}:role/terraform_enterprise"
@@ -22,6 +23,7 @@ resource "artifactory_artifact_s3_deployment" "test_artifact" {
   repository_path = "lambda/propinc/ingest/replicate-2.30.0.zip"
   s3_bucket = "yolk-propinc-live-tmp-bucket"
   s3_prefix = "lambda/deployments"
+  s3_region = "us-east-1"
 }
 
 resource "artifactory_artifact_s3_deployment" "test_artifact_deux" {

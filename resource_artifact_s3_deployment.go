@@ -43,6 +43,11 @@ func resourceArtifactS3Deployment() *schema.Resource {
 				Description: "This is computed from the bucket_prefix and repository_artifact.",
 				Computed:    true,
 			},
+			"s3_region": {
+				Type:        schema.TypeString,
+				Description: "The target S3 region",
+				Optional:    true,
+			},
 			"repo": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -82,6 +87,15 @@ func doesS3ObjectExist(input *s3.HeadObjectInput, _s3 *s3.S3) (bool, error) {
 		return true, nil
 	}
 }
+func getS3Region(d *schema.ResourceData, sess *session.Session) string {
+	// get it if it's set on this resource
+	s3_region := d.Get("s3_region").(string)
+	if s3_region == "" {
+		// use whatever is set on provider
+		s3_region = *sess.Config.Region
+	}
+	return s3_region
+}
 
 func resourceArtifactS3DeploymentCreate(d *schema.ResourceData, m interface{}) error {
 	// set the resource properies
@@ -96,14 +110,17 @@ func resourceArtifactS3DeploymentCreate(d *schema.ResourceData, m interface{}) e
 	// what we're playing with though is the ux of this provider when using in
 	// terraform for our use case :)
 	err := resourceArtifactS3DeploymentRead(d, m)
-	s3_bucket := d.Get("s3_bucket").(string)
-	s3_key := d.Get("s3_key").(string)
 	if err != nil {
 		return err
 	}
-	// s3 read.. CREATE logic
 	sess := m.(*session.Session)
-	svc := s3.New(sess)
+	s3_bucket := d.Get("s3_bucket").(string)
+	// generated with read above
+	s3_key := d.Get("s3_key").(string)
+	s3_region := getS3Region(d, sess)
+	svc := s3.New(sess, &aws.Config{
+		Region: aws.String(s3_region),
+	})
 	input := &s3.HeadObjectInput{
 		Bucket: aws.String(s3_bucket),
 		Key:    aws.String(s3_key),
@@ -117,7 +134,7 @@ func resourceArtifactS3DeploymentCreate(d *schema.ResourceData, m interface{}) e
 	if err != nil {
 		return err
 	}
-	uploader := s3manager.NewUploader(sess)
+	uploader := s3manager.NewUploaderWithClient(svc)
 	artifact_binary_resp, err := http.Get(d.Get("download_uri").(string))
 	if err != nil {
 		return err
@@ -138,7 +155,6 @@ func resourceArtifactS3DeploymentRead(d *schema.ResourceData, m interface{}) err
 	repository_path := d.Get("repository_path").(string)
 	s3_bucket := d.Get("s3_bucket").(string)
 	s3_prefix := d.Get("s3_prefix").(string)
-
 	var f FileInfo
 	// TODO use the provided artifactoryUrl, or require datasource input and
 	// configurefunc for returning either an http client or s3 client
@@ -167,10 +183,13 @@ func resourceArtifactS3DeploymentUpdate(d *schema.ResourceData, m interface{}) e
 }
 
 func resourceArtifactS3DeploymentDelete(d *schema.ResourceData, m interface{}) error {
-	sess := m.(*session.Session)
-	svc := s3.New(sess)
 	s3_bucket := d.Get("s3_bucket").(string)
 	s3_key := d.Get("s3_key").(string)
+	sess := m.(*session.Session)
+	s3_region := getS3Region(d, sess)
+	svc := s3.New(sess, &aws.Config{
+		Region: aws.String(s3_region),
+	})
 
 	input := &s3.DeleteObjectInput{
 		Bucket: aws.String(s3_bucket),

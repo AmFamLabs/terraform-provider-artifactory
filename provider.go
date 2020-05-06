@@ -19,7 +19,6 @@ func assumeRoleSchema() *schema.Schema {
 					Type:     schema.TypeString,
 					Optional: true,
 				},
-
 				"session_name": {
 					Type:     schema.TypeString,
 					Optional: true,
@@ -48,6 +47,12 @@ func Provider() *schema.Provider {
 				Required:    true,
 			},
 			"assume_role": assumeRoleSchema(),
+			"aws_region": {
+				Type:        schema.TypeString,
+				Description: "The provider's AWS region",
+				Optional:    true,
+				Default:     "us-east-1",
+			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
 			"artifactory_artifact_s3_deployment": resourceArtifactS3Deployment(),
@@ -56,10 +61,15 @@ func Provider() *schema.Provider {
 			"artifactory_artifact": dataSourceArtifact(),
 		},
 		ConfigureFunc: func(d *schema.ResourceData) (interface{}, error) {
+			aws_region := d.Get("aws_region").(string)
 			// Initial credentials loaded from SDK's default credential chain. Such as
 			// the environment, shared credentials (~/.aws/credentials), or EC2 Instance
 			// Role. These credentials will be used to to make the STS Assume Role API.
-			sess := session.Must(session.NewSession())
+			sess := session.Must(
+				session.NewSession(&aws.Config{
+					Region: aws.String(aws_region),
+				}),
+			)
 
 			assumeRoleList := d.Get("assume_role").(*schema.Set).List()
 
@@ -68,7 +78,10 @@ func Provider() *schema.Provider {
 				// Create the credentials from AssumeRoleProvider to assume the role
 				creds := stscreds.NewCredentials(sess, assumeRole["role_arn"].(string))
 				new_sess, err := session.NewSessionWithOptions(session.Options{
-					Config: aws.Config{Credentials: creds},
+					Config: aws.Config{
+						Credentials: creds,
+						Region:      aws.String(aws_region),
+					},
 				})
 				return new_sess, err
 
