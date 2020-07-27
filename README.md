@@ -6,7 +6,14 @@ Artifactory will create a S3 object deployment that's state can be
 traced/tracked for influencing a vanilla lambda deployment that wants an s3
 object for deployment.
 
+
+## Troubleshooting
+
+See this project's [Wiki][wiki].
+
 ## Feature Wishlist
+<details>
+<summary>completed features</summary>
 
 - *MVP?* a `resource` and `data`
  - [X] a `resource` that is a `artifactory_artifact_s3_deployment` which will produce a
@@ -36,6 +43,7 @@ object for deployment.
  - [X] a `data` that is a `artiactory_artifact` which will utilize Artifactory's
    REST API for grabbing information of a given `repository_path`
 
+</details>
 
 ### Caveat for Terraform Enterprise
 
@@ -125,3 +133,4 @@ terraform plan && terraform apply
 
 [terraform_bundle]: https://github.com/hashicorp/terraform/tree/master/tools/terraform-bundle#installing-a-bundle-in-on-premises-terraform-enterprise
 [tfe_custom_providers]: https://www.terraform.io/docs/cloud/run/install-software.html#custom-and-community-providers
+[wiki]: https://git.amfamlabs.com/terraform/terraform-provider-artifactory/-/wikis/home
