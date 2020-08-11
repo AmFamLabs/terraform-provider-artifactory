@@ -25,18 +25,30 @@ type FileInfo struct {
 func getFileInfo(repository_path string, f *FileInfo) error {
 	// TODO use from provider config
 	artifactory_url := "https://artifacts.amfamlabs.com"
-	resp, err := http.Get(fmt.Sprintf("%s/api/storage/%s", artifactory_url, repository_path))
+	resp, err := http.Get(fmt.Sprintf(
+		"%s/api/storage/%s",
+		artifactory_url,
+		repository_path,
+	))
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
+
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("We didn't find that artifact :(")
+		return fmt.Errorf(
+			"%d error when retrieving %s from %s",
+			resp.StatusCode,
+			repository_path,
+			artifactory_url,
+		)
 	}
+
 	jsonerr := json.NewDecoder(resp.Body).Decode(&f)
 	if jsonerr != nil {
 		return jsonerr
 	}
+
 	return nil
 }
 
