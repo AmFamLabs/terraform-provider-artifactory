@@ -20,15 +20,15 @@ See this project's [Wiki][wiki].
    resource that will have the attributes of `s3_bucket` and `s3_prefix` that can be
    used to feed a vanilla
    [`aws_lambda_function`](https://www.terraform.io/docs/providers/aws/r/lambda_function.html)
-   resource defined with `s3_bucket` and `s3_key` from the source resource. 
+   resource defined with `s3_bucket` and `s3_key` from the source resource.
    - Changes to the source `artifactory_artifact_s3_deployment` resource
      will effect the `s3_key` through a hash if Artifactory deployment isn't
-     already doing this for us. (I think it is), but a `s3_bucket` 
+     already doing this for us. (I think it is), but a `s3_bucket`
      should be required and we should expect to use a vanilla
      `aws_s3_bucket` data/resource attribute.
    - `source_code_hash` on the `aws_lambda_function` can also use the one
      provided conveniently by artifactory. i.e.;
-     
+
      ```terraform
      resource "aws_lambda_function" "fun" {
         source_code_hash = base64encode(data.artifactory_artifact.test_artifact.checksums.sha256)
@@ -121,6 +121,12 @@ output "size" {
 
 ```sh
 go build
+```
+
+### Install plugin
+
+```sh
+make install
 ```
 
 ### Run plugin
