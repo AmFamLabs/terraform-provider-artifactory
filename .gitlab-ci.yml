@@ -1,4 +1,5 @@
-image: golang:latest
+---
+include: "https://artifacts.amfamlabs.com/dl/gitlab-exts/amfam/cicd/make/gitlab-ext-6.7.1.yml"
 
 variables:
   # Please edit to your GitLab project
@@ -19,13 +20,8 @@ before_script:
   - ln -svf $CI_PROJECT_DIR $GOPATH/src/$REPO_NAME
   - cd $GOPATH/src/$REPO_NAME
 
-stages:
-  - test
-  - build
-  - deploy
-  - publish
-
 format:
+  image: golang:latest
   stage: test
   script:
     - go fmt $(go list ./... | grep -v /vendor/)
@@ -33,32 +29,17 @@ format:
     - go test -race $(go list ./... | grep -v /vendor/)
 
 compile:
+  image: golang:latest
   stage: build
   script:
-    - go build -race -ldflags "-extldflags '-static'" -o $CI_PROJECT_DIR/$BINARY_NAME
+    - go build -race -ldflags "-extldflags '-static'" -o dist/$BINARY_NAME
   artifacts:
     paths:
-      - $BINARY_NAME
+      - dist
 
 publish:
+  extends: .maker
   stage: publish
-  only:
-    refs:
-      - master
-  script:
-    - >-
-      cd $GOPATH/bin
-      && apt-get update 
-      && apt-get install unzip
-      && curl -LO https://releases.hashicorp.com/vault/1.4.1/vault_1.4.1_linux_amd64.zip
-      && unzip vault_1.4.1_linux_amd64.zip
-      && rm vault_1.4.1_linux_amd64.zip
-      && cd -
-    - VAULT_HOST="$(echo $VAULT_ADDR | sed 's|https://||g')"
-    - vault login -no-print -method aws role="$VAULT_ROLE" header_value="$VAULT_HOST"
-    - ARTIFACTS_PASS="$(vault kv get -field=token 'secret/artifacts/publisher')"
-    - ARTIFACTS_HTTPS="${ARTIFACTS_HTTPS:-https://artifacts.amfamlabs.com}"
-    - DEST=dl-local/terraform-providers/$BINARY_NAME
-    - curl -u"$ARTIFACTS_USER:$ARTIFACTS_PASS" -s -X PUT -T $BINARY_NAME "$ARTIFACTS_HTTPS/$DEST"
+  script: make publish
 
 ...
