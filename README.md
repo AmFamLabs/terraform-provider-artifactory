@@ -1,4 +1,4 @@
-# terraform-provider-artifactory
+# Terraform Provider Artifactory
 
 ## Abstract
 This provider's is given *some* input, an artifact from JFrog's
@@ -6,10 +6,10 @@ Artifactory will create a S3 object deployment that's state can be
 traced/tracked for influencing a vanilla lambda deployment that wants an s3
 object for deployment.
 
+## Requirements
 
-## Troubleshooting
-
-See this project's [Wiki][wiki].
+-	[Terraform](https://www.terraform.io/downloads.html) >= 0.13.x
+-	[Go](https://golang.org/doc/install) >= 1.14
 
 ## Feature Wishlist
 <details>
@@ -45,72 +45,6 @@ See this project's [Wiki][wiki].
 
 </details>
 
-### Caveat for Terraform Enterprise
-
-Via [terraform custom providers][tfe_custom_providers]
-
-Custom providers (plugins) have to either have their binary added to the repo
-in the same path of any terraform that would require it, or it must be packaged
-and bundled using the [`terraform_bundle`][terraform_bundle] tool.
-
-
-# Terraform Resources
-
-_theres probably a way to generate this_
-
-
-## `artifactory_artifact` (resource)
-
-One "deployment" should be made per function, since it is fully managed by the
-s3_key, the underlying zip on s3 that more than one function may use will be
-deleted. We assume artifactory will have uniqueness on each "repository_path",
-the artifact itself, or the basename will be the basename on s3 with
-`s3_prefix` like `s3://$S3_PREFIX/$ARTIFACT_BASENAME`.
-
-To put another way - if your function will require a specific version, it will
-need to be exposed by Artifactory's path provided as `repository_path` to the
-resource.
-
-```terraform
-resource "artifactory_artifact_s3_deployment" "test_artifact" {
-  repository_path = "lambda/propinc/ingest/replicate-2.30.0.zip"
-  s3_bucket = "yolk-propinc-live-tmp-bucket"
-  s3_prefix = "lambda/deployments"
-}
-
-
-... aws_lambda_function goes here ...
-```
-
-## `data.artifactory_artifact`
-```terraform
-data "artifactory_artifact" "test_artifact" {
-  repository_path = "lambda/propinc/ingest/replicate-2.30.0.zip"
-}
-
-output "checksums" {
-  value = data.artifactory_artifact.test_artifact.checksums
-}
-
-output "download_uri" {
-  value = data.artifactory_artifact.test_artifact.download_uri
-}
-
-output "path" {
-  value = data.artifactory_artifact.test_artifact.path
-}
-
-output "repo" {
-  value = data.artifactory_artifact.test_artifact.repo
-}
-
-output "size" {
-  value = data.artifactory_artifact.test_artifact.size
-}
-```
-
-
-
 ## Development
 
 ### Prerequisites
@@ -129,6 +63,12 @@ go build
 make install
 ```
 
+### Generate plugin docs
+
+```sh
+make generate-docs
+```
+
 ### Run plugin
 
 ```sh
@@ -136,7 +76,16 @@ terraform init
 terraform plan && terraform apply
 ```
 
+## Release
 
-[terraform_bundle]: https://github.com/hashicorp/terraform/tree/master/tools/terraform-bundle#installing-a-bundle-in-on-premises-terraform-enterprise
-[tfe_custom_providers]: https://www.terraform.io/docs/cloud/run/install-software.html#custom-and-community-providers
-[wiki]: https://git.amfamlabs.com/terraform/terraform-provider-artifactory/-/wikis/home
+We are leveraging GitHub Actions to execute workflows when events on this repository occur. Once all the changes and testing are completed, Push a new valid version tag (e.g. v1.2.3) to trigger the GitHub Actions releaser. Once a release is created, you can move on to [Publishing to the Registry ](https://www.terraform.io/docs/registry/providers/publishing.html#publishing-to-the-registry).
+
+## References
+
+[Publishing Providers](https://www.terraform.io/docs/registry/providers/publishing.html)
+
+[Terraform Provider Scaffolding](https://github.com/hashicorp/terraform-provider-scaffolding)
+
+[terraform_bundle](https://github.com/hashicorp/terraform/tree/master/tools/terraform-bundle#installing-a-bundle-in-on-premises-terraform-enterprise)
+
+[tfe_custom_providers](https://www.terraform.io/docs/cloud/run/install-software.html#custom-and-community-providers)
