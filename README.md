@@ -63,6 +63,12 @@ go build
 make install
 ```
 
+### Generate plugin docs
+
+```sh
+make generate-docs
+```
+
 ### Run plugin
 
 ```sh
