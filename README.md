@@ -76,7 +76,16 @@ terraform init
 terraform plan && terraform apply
 ```
 
+## Release
 
-[terraform_bundle]: https://github.com/hashicorp/terraform/tree/master/tools/terraform-bundle#installing-a-bundle-in-on-premises-terraform-enterprise
-[tfe_custom_providers]: https://www.terraform.io/docs/cloud/run/install-software.html#custom-and-community-providers
-[wiki]: https://git.amfamlabs.com/terraform/terraform-provider-artifactory/-/wikis/home
+We are leveraging GitHub Actions to execute workflows when events on this repository occur. Once all the changes and testing are completed, Push a new valid version tag (e.g. v1.2.3) to trigger the GitHub Actions releaser. Once a release is created, you can move on to [Publishing to the Registry ](https://www.terraform.io/docs/registry/providers/publishing.html#publishing-to-the-registry).
+
+## References
+
+[Publishing Providers](https://www.terraform.io/docs/registry/providers/publishing.html)
+
+[Terraform Provider Scaffolding](https://github.com/hashicorp/terraform-provider-scaffolding)
+
+[terraform_bundle](https://github.com/hashicorp/terraform/tree/master/tools/terraform-bundle#installing-a-bundle-in-on-premises-terraform-enterprise)
+
+[tfe_custom_providers](https://www.terraform.io/docs/cloud/run/install-software.html#custom-and-community-providers)
